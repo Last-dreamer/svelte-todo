@@ -1,36 +1,74 @@
+<script lang="ts">
+ 
+import type {Todo } from "$root/types/todos"
+    import AddTodo from "./addTodo.svelte";
+
+    let todos: Todo[] =  [
+        {id:"1", text:"todo 1", completed: true},
+        {id:"2", text:"todo 2", completed: false},
+        {id:"3", text:"todo 3", completed: false},
+    ]
+
+    // debug
+    $: console.log(todos)
+
+    // amount
+    $: todoAmount = todos.length
+
+    //methods
+    function generateRandomId(): string {
+        return Math.random().toString(16).slice(2)
+    }
+
+    // addtodo
+    function addTodo(todo: string) {
+        let newTodo: Todo = {
+            id: generateRandomId(),
+            text: todo,
+            completed: false
+        }
+        todos = [...todos, newTodo]
+    }
+
+    // toggle completed
+    function toggleCompleted(event: MouseEvent) {
+        let { checked } = event.target as HTMLInputElement
+        todos = todos.map(todo => ({
+            ...todo,
+            completed: checked
+        }))
+        
+        
+    }
+
+
+</script>
+
 <main>
     <h1 class="title">Todos</h1>
   
     <section class="todos">
-      <form>
-        <input type="checkbox" id="toggle-all" class="toggle-all" />
-        <label aria-label="Mark all as complete" for="toggle-all">
-          Mark all as complete
-        </label>
-  
-        <!-- svelte-ignore a11y-autofocus -->
-        <input
-          id="new-todo"
-          class="new-todo"
-          placeholder="What needs to be done?"
-          type="text"
-          autofocus
-        />
-      </form>
-  
+    
+        <AddTodo {addTodo} {toggleCompleted} {todoAmount} />
+
+     {#if todoAmount}
       <ul class="todo-list">
+        {#each todos as todo (todo.id)}
         <li class="todo">
           <div class="todo-item">
             <div>
-              <input id="todo" class="toggle" type="checkbox" />
+              <input
+              checked={todo.completed}
+              id="todo" class="toggle" type="checkbox" />
               <label aria-label="Check todo" class="todo-check" for="todo" />
             </div>
-            <span class="todo-text">Todo 1</span>
+            <span class="todo-text">{todo.text}</span>
             <button aria-label="Remove todo" class="remove" />
           </div>
   
           <!-- <input class="edit" type="text" autofocus /> -->
         </li>
+        {/each}
       </ul>
   
       <div class="actions">
@@ -42,6 +80,7 @@
         </div>
         <button class="clear-completed">Clear completed</button>
       </div>
+      {/if}
     </section>
   </main>
 
@@ -96,42 +135,7 @@
       z-index: -1;
     }
   
-    /* Add todo */
-  
-    .toggle-all {
-      width: 1px;
-      height: 1px;
-      position: absolute;
-      opacity: 0;
-    }
-  
-    .toggle-all + label {
-      position: absolute;
-      font-size: 0;
-    }
-  
-    .toggle-all + label:before {
-      content: '❯';
-      display: block;
-      padding: var(--spacing-16);
-      font-size: var(--font-24);
-      color: var(--color-gray-58);
-      transform: rotate(90deg);
-    }
-  
-    .toggle-all:checked + label:before {
-      color: var(--color-gray-28);
-    }
-  
-    .new-todo {
-      width: 100%;
-      padding: var(--spacing-16);
-      padding-left: 60px;
-      font-size: var(--font-24);
-      border: none;
-      color: white;
-      border-bottom: 1px solid var(--shadow-1);
-    }
+    
   
     /* Todo */
   
