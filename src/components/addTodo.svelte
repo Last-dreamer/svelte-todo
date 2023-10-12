@@ -40,7 +40,7 @@
 
 <style>
 /* Add todo */
-  
+
 .toggle-all {
       width: 1px;
       height: 1px;
