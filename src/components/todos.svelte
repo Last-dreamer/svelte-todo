@@ -1,34 +1,41 @@
 <script lang="ts">
  
 import type {FilterType, ITodo } from "$root/types/todos"
+import {useStorage} from '$root/store/useStorage'
     import AddTodo from "./addTodo.svelte";
     import TodoItem from "./todoItem.svelte";
     import LeftTodo from "./leftTodo.svelte"
     import FilteredTodos from "./filteredTodos.svelte";
     import ClearTodo from "./clearTodo.svelte";
+
+    // const storedData = localStorage.getItem('todos');  
+
  
-    let todos: ITodo[] =  [
-        {id:"1", text:"todo 1", completed: true},
-        {id:"2", text:"todo 2", completed: false},
-        {id:"3", text:"todo 3", completed: false},
-    ]
+    let todos = useStorage<ITodo[]>('todos', [])
+
 
     let selectedFilter: FilterType  = 'all'
 
 
+    let retrivedTodos = $todos
+   
+    
     // debug
-    $: console.log(todos)
+    $: console.log($todos)
 
     // amount
-    $: todoAmount = todos.length
+    $: todoAmount = retrivedTodos.length
 
+    
     // left amount 
-    $: incompleteTodos = todos.filter(todo =>  !todo.completed).length
+    $: incompleteTodos = retrivedTodos.filter(todo =>  !todo.completed).length
 
     // filtered todos
-    $: filteredTodos = filterTodos(todos, selectedFilter)
-    $: completedTodo =  todos.filter(todo => todo.completed).length
+    $: filteredTodos = filterTodos($todos, selectedFilter)
+    $: completedTodo =  retrivedTodos.filter(todo => todo.completed).length
 
+
+    
     //methods
     function generateRandomId(): string {
         return Math.random().toString(16).slice(2)
@@ -41,13 +48,13 @@ import type {FilterType, ITodo } from "$root/types/todos"
             text: todo,
             completed: false
         }
-        todos = [...todos, newTodo]
+        $todos = [...$todos, newTodo]
     }
 
     // toggle completed
     function toggleCompleted(event: MouseEvent) {
         let { checked } = event.target as HTMLInputElement
-        todos = todos.map(todo => ({
+        $todos = $todos.map(todo => ({
             ...todo,
             completed: checked
         }))
@@ -56,7 +63,7 @@ import type {FilterType, ITodo } from "$root/types/todos"
 
     // complete method
     function completeTodo(id: string): void {
-      todos = todos.map((todo) => {
+      $todos = $todos.map((todo) => {
         if(todo.id === id){
             todo.completed = !todo.completed
         }   
@@ -66,7 +73,7 @@ import type {FilterType, ITodo } from "$root/types/todos"
 
     // remove 
     function removeTodo(id: string):void {
-        todos = todos.filter((todo)=> todo.id !== id)
+        $todos = $todos.filter((todo)=> todo.id !== id)
     }
 
     function setFilter(newFilter: FilterType):void {
@@ -74,15 +81,21 @@ import type {FilterType, ITodo } from "$root/types/todos"
     }
 
     function filterTodos(todo: ITodo[], filter: FilterType): ITodo[] {
+      let allTodo = $todos
+
+      if(allTodo){
         switch (filter) {
-            case "all": return todos
-            case "active": return todos.filter(todo => !todo.completed)
-            case "completed": return todos.filter(todo => todo.completed)
+            case "all": return allTodo;
+            case "active": return allTodo.filter(todo => !todo.completed)
+            case "completed": return allTodo.filter(todo => todo.completed)
         }
+      }else{
+        return []
+      }      
     }
 
     function clearAllTodo():void {
-       todos =  todos.filter(todo => todo.completed !== true)
+       $todos =  $todos.filter(todo => todo.completed !== true)
     }
 
 </script>
