@@ -11,28 +11,32 @@ import {useStorage} from '$root/store/useStorage'
     // const storedData = localStorage.getItem('todos');  
 
  
-    let todos = useStorage<ITodo[]>('todos', [])
+    let todos: ITodo = []
+
+     
+    if(todos){
+      todos =  useStorage<ITodo[]>('todos', [])
+    }
+ 
 
 
     let selectedFilter: FilterType  = 'all'
 
-
-    let retrivedTodos = $todos
-   
+ 
     
     // debug
-    $: console.log($todos)
+    $: console.log(", testimg of ",$todos)
 
-    // amount
-    $: todoAmount = retrivedTodos.length
+    // amounts
+    $: todoAmount = $todos.length
 
-    
+
     // left amount 
-    $: incompleteTodos = retrivedTodos.filter(todo =>  !todo.completed).length
+    $: incompleteTodos = $todos.filter(todo =>  !todo.completed).length
 
-    // filtered todos
-    $: filteredTodos = filterTodos($todos, selectedFilter)
-    $: completedTodo =  retrivedTodos.filter(todo => todo.completed).length
+    // // filtered todos
+    // $: filteredTodos = filterTodos($todos, selectedFilter)
+    // $: completedTodo =  $todos.filter(todo => todo.completed).length
 
 
     
@@ -103,7 +107,7 @@ import {useStorage} from '$root/store/useStorage'
 <main>
     <h1 class="title">Todos</h1>
   
-    <section class="todos">
+    <!-- <section class="todos">
     
         <AddTodo {addTodo} {toggleCompleted} {todoAmount} />
 
@@ -116,12 +120,12 @@ import {useStorage} from '$root/store/useStorage'
   
       <div class="actions">
         <LeftTodo {incompleteTodos}/>
-       <FilteredTodos  {selectedFilter} {setFilter} />
+        <FilteredTodos  {selectedFilter} {setFilter} />
        <ClearTodo {clearAllTodo}  {completedTodo}/>
      
       </div>
       {/if}
-    </section>
+    </section> -->
   </main>
 
 
