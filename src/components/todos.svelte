@@ -1,40 +1,43 @@
 <script lang="ts">
  
 import type {FilterType, ITodo } from "$root/types/todos"
-import {useStorage} from '$root/store/useStorage'
+ 
     import AddTodo from "./addTodo.svelte";
     import TodoItem from "./todoItem.svelte";
     import LeftTodo from "./leftTodo.svelte"
     import FilteredTodos from "./filteredTodos.svelte";
     import ClearTodo from "./clearTodo.svelte";
 
-    // const storedData = localStorage.getItem('todos');  
-
  
-    let todos = useStorage<ITodo[]>('todos', [])
+let storedData = localStorage.getItem('todos');
+ let todos: ITodo[];  
+
+if (storedData !== null) {
+  console.log("yeah ",storedData)  
+  todos = JSON.parse(storedData);
+} else {
+  todos = [];
+}    
+
+$: {
+      localStorage.setItem("todos",JSON.stringify(todos))
+    }
+ 
 
     let selectedFilter: FilterType  = 'all'
   
     // debug
-    $: console.log(", testimg of ",$todos)
+    $: console.log(", testing of ",todos)
 
     // amounts
-    $: todoAmount = $todos.length
-    $: console.log("testing co", todoAmount)    
+    $: todoAmount = todos.length
 
-    $: console.log("testing coo 3",todos)
+    // left amount 
+    $: incompleteTodos = todos.filter(todo =>  !todo.completed).length
+    // filtered todos
+    $: filteredTodos = filterTodos(todos, selectedFilter)
+    $: completedTodo =  todos.filter(todo => todo.completed).length 
 
-// left amount 
-$: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.set([ { id: '1e4a59703af84', text: 'Todo 1', completed: true },]);
-// $: incompleteTodos = $todos?.filter(todo =>  !todo.completed).length
-
-    
-    // // filtered todos
-    // $: filteredTodos = filterTodos($todos, selectedFilter)
-    // $: completedTodo =  $todos.filter(todo => todo.completed).length
-
-
-    
     //methods
     function generateRandomId(): string {
         return Math.random().toString(16).slice(2)
@@ -47,13 +50,13 @@ $: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.se
             text: todo,
             completed: false
         }
-        $todos = [...$todos, newTodo]
+        todos = [...todos, newTodo]
     }
 
     // toggle completed
     function toggleCompleted(event: MouseEvent) {
         let { checked } = event.target as HTMLInputElement
-        $todos = $todos.map(todo => ({
+        todos = todos.map(todo => ({
             ...todo,
             completed: checked
         }))
@@ -62,9 +65,9 @@ $: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.se
 
     // complete method
     function completeTodo(id: string): void {
-      $todos = $todos.map((todo) => {
+      todos = todos.map((todo) => {
         if(todo.id === id){
-            todo.completed = !todo.completed
+          todo.completed = !todo.completed
         }   
         return todo
       })
@@ -72,14 +75,15 @@ $: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.se
 
     // remove 
     function removeTodo(id: string):void {
-        $todos = $todos.filter((todo)=> todo.id !== id)
+        todos = todos.filter((todo)=> todo.id !== id)
     }
 
     function setFilter(newFilter: FilterType):void {
         selectedFilter = newFilter
     }
+
     function filterTodos(todo: ITodo[], filter: FilterType): ITodo[] {
-      let allTodo = $todos
+      let allTodo = todos
 
       if(allTodo){
         switch (filter) {
@@ -93,7 +97,7 @@ $: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.se
     }
 
     function clearAllTodo():void {
-       $todos =  $todos.filter(todo => todo.completed !== true)
+       todos =  todos.filter(todo => todo.completed !== true)
     }
 
 </script>
@@ -101,10 +105,8 @@ $: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.se
 <main>
     <h1 class="title">Todos</h1>
   
-    <!-- <section class="todos">
-    
+    <section class="todos">
         <AddTodo {addTodo} {toggleCompleted} {todoAmount} />
-
      {#if todoAmount}
       <ul class="todo-list">
         {#each filteredTodos as todo (todo.id)}
@@ -119,7 +121,7 @@ $: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.se
      
       </div>
       {/if}
-    </section> -->
+    </section>
   </main>
 
 

@@ -24,12 +24,23 @@ export function useStorage<Value>(
   initialValue: Value
 ): Writable<Value> {
   let serialize = JSON.stringify
-  let deserialize = JSON.parse
+//   let deserialize = JSON.parse
 
-  let storedValue: Value = deserialize(localStorage.getItem(key) ?? "")
 
-  let store = writable(storedValue ? storedValue : initialValue)
-  store.subscribe((value) => localStorage.setItem(key, serialize(value)))
+  let storedData = localStorage.getItem(key)
+  let todos: Value;
 
-  return store
+  if(storedData != null){
+    try {
+        todos = JSON.parse(storedData);
+
+        let store = writable(todos ? todos : initialValue)
+        store.subscribe((value) => localStorage.setItem(key, serialize(value)))
+        return store
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+    } 
+  }
+
+  return writable(initialValue); 
 }
