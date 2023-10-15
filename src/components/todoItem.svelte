@@ -1,7 +1,7 @@
 
 
 <script lang="ts">
-
+import {slide, fade} from "svelte/transition";
 import type {ITodo } from '$root/types/todos'
  
 
@@ -16,7 +16,8 @@ export let completeTodo: CompleteTodoType
 </script>
 
 
-<li class="todo">
+<li in:slide out:fade
+class="todo">
     <div class="todo-item">
       <div>
         <input
