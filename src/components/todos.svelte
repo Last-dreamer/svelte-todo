@@ -11,29 +11,24 @@ import {useStorage} from '$root/store/useStorage'
     // const storedData = localStorage.getItem('todos');  
 
  
-    let todos: ITodo = []
-
-     
-    if(todos){
-      todos =  useStorage<ITodo[]>('todos', [])
-    }
- 
-
+    let todos = useStorage<ITodo[]>('todos', [])
 
     let selectedFilter: FilterType  = 'all'
-
- 
-    
+  
     // debug
     $: console.log(", testimg of ",$todos)
 
     // amounts
     $: todoAmount = $todos.length
+    $: console.log("testing co", todoAmount)    
 
+    $: console.log("testing coo 3",todos)
 
-    // left amount 
-    $: incompleteTodos = $todos.filter(todo =>  !todo.completed).length
+// left amount 
+$: incompleteTodos = $todos?.filter(todo => !todo.completed).length ??  todos.set([ { id: '1e4a59703af84', text: 'Todo 1', completed: true },]);
+// $: incompleteTodos = $todos?.filter(todo =>  !todo.completed).length
 
+    
     // // filtered todos
     // $: filteredTodos = filterTodos($todos, selectedFilter)
     // $: completedTodo =  $todos.filter(todo => todo.completed).length
@@ -83,7 +78,6 @@ import {useStorage} from '$root/store/useStorage'
     function setFilter(newFilter: FilterType):void {
         selectedFilter = newFilter
     }
-
     function filterTodos(todo: ITodo[], filter: FilterType): ITodo[] {
       let allTodo = $todos
 
